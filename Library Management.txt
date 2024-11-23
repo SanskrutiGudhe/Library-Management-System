@@ -1,0 +1,217 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#define MAX_BOOKS 100
+#define MAX_NAME_LENGTH 50
+#define MAX_CATEGORIES 25
+#define BORROW_LIMIT_DAYS 30
+// Structure to represent a book
+struct Book {
+    char name[MAX_NAME_LENGTH];
+    int isBorrowed;
+time_tborrowDate;
+};
+// Structure to represent a category
+struct Category {
+    char name[MAX_NAME_LENGTH];
+    int bookCount;
+    struct Book books[MAX_BOOKS];
+};
+// Library structure
+struct Library {
+    int categoryCount;
+    struct Category categories[MAX_CATEGORIES];
+};
+// Function to add a new category
+void addCategory(struct Library *library, char *name) {
+    if (library->categoryCount>= MAX_CATEGORIES) {
+printf("Cannot add more categories.\n");
+        return;
+    }
+    struct Category *category = &library->categories[library->categoryCount++];
+strcpy(category->name, name);
+    category->bookCount = 0;
+printf("Category '%s' added.\n", name);
+}
+// Function to add a book to a category
+void addBook(struct Category *category, char *name) {
+    if (category->bookCount>= MAX_BOOKS) {
+printf("Cannot add more books to this category.\n");
+        return;
+    }
+    struct Book *book = &category->books[category->bookCount++];
+strcpy(book->name, name);
+    book->isBorrowed = 0;
+}
+// Function to search for a book in a library
+void searchBook(struct Library *library, char *name) {
+    for (int i = 0; i< library->categoryCount; i++) {
+        struct Category *category = &library->categories[i];
+        for (int j = 0; j < category->bookCount; j++) {
+            if (strcmp(category->books[j].name, name) == 0) {
+printf("Book '%s' found in category '%s'.\n", name, category->name);
+                return;
+            }
+        }
+    }
+printf("Book '%s' not found in the library.\n", name);
+}
+// Function to borrow a book
+void borrowBook(struct Library *library, char *name) {
+    for (int i = 0; i< library->categoryCount; i++) {
+        struct Category *category = &library->categories[i];
+        for (int j = 0; j < category->bookCount; j++) {
+            struct Book *book = &category->books[j];
+            if (strcmp(book->name, name) == 0 && book->isBorrowed == 0) {
+                book->isBorrowed = 1;
+                book->borrowDate = time(NULL);
+printf("Book '%s' has been borrowed from category '%s'.\n", name, category->name);
+printf("You have to return the book within %d days.\n", BORROW_LIMIT_DAYS);
+                return;
+            } else if (strcmp(book->name, name) == 0 && book->isBorrowed == 1) {
+printf("Book '%s' is currently borrowed.\n", name);
+                return;
+            }
+        }
+    }
+printf("Book '%s' not found in the library.\n", name);
+}
+// Function to display deadline for borrowed books
+void displayDeadline(struct Library *library) {
+printf("Borrowed Books:\n");
+    for (int i = 0; i< library->categoryCount; i++) {
+        struct Category *category = &library->categories[i];
+        for (int j = 0; j < category->bookCount; j++) {
+            struct Book *book = &category->books[j];
+            if (book->isBorrowed == 1) {
+time_tcurrentDate = time(NULL);
+                int daysLeft = BORROW_LIMIT_DAYS - (currentDate - book->borrowDate) / (60 * 60 * 24);
+printf("Book: %s, Category: %s, Deadline: %d days\n", book->name, category->name, daysLeft);
+            }
+        }
+    }
+}
+// Function to delete a book from a category
+void deleteBook(struct Category *category, char *name) {
+    for (int i = 0; i< category->bookCount; i++) {
+        if (strcmp(category->books[i].name, name) == 0) {
+            for (int j = i; j < category->bookCount - 1; j++) {
+                category->books[j] = category->books[j + 1];
+            }
+            category->bookCount--;
+printf("Book '%s' deleted from category '%s'.\n", name, category->name);
+            return;
+        }
+    }
+printf("Book '%s' not found in category '%s'.\n", name, category->name);
+}
+// Function to display all books in the library
+void displayBooks(struct Library *library) {
+printf("Library Books:\n");
+    for (int i = 0; i< library->categoryCount; i++) {
+        struct Category *category = &library->categories[i];
+printf("Category: %s\n", category->name);
+        for (int j = 0; j < category->bookCount; j++) {
+printf(" - %s\n", category->books[j].name);
+        }
+    }
+}
+
+int main() {
+    struct Library library = {0}; 
+    int choice;
+    char name[MAX_NAME_LENGTH];
+    char categoryName[MAX_NAME_LENGTH];
+addCategory(&library, "Recommended");
+addBook(&library.categories[0], "Hamlet");
+addBook(&library.categories[0], "Dracula");
+addBook(&library.categories[0], "Veronica");
+addBook(&library.categories[0], "Persuasion");
+addBook(&library.categories[0], "Arrival");
+addBook(&library.categories[0], "Bleach");
+addBook(&library.categories[0], "Herculus");
+addBook(&library.categories[0], "Ikigai");
+addBook(&library.categories[0], "1984");
+addBook(&library.categories[0], "Rebecca");
+    do {
+printf("\nLibrary Management System\n");
+printf("1. Add Category\n");
+printf("2. Add Book\n");
+printf("3. Search Book\n");
+printf("4. Borrow Book\n");
+printf("5. Display Deadline\n");
+printf("6. Delete Book\n");
+printf("7. Display Books\n");
+printf("8. Exit\n");
+printf("Enter your choice: ");
+scanf("%d", &choice);
+getchar();
+        switch (choice) {
+            case 1:
+printf("Enter category name: ");
+scanf("%s", categoryName);
+addCategory(&library, categoryName);
+                break;
+            case 2:
+printf("Enter category name: ");
+scanf("%s", categoryName);
+printf("Enter book name: ");
+scanf("%s", name);
+                int found = 0;
+                for (int i = 0; i<library.categoryCount; i++) {
+                    if (strcmp(library.categories[i].name, categoryName) == 0) {
+addBook(&library.categories[i], name);
+                        found = 1;
+                        break;
+                    }
+                }
+                if (!found) {
+printf("Category '%s' not found.\n", categoryName);
+                }
+                break;
+            case 3:
+printf("Enter book name to search: ");
+scanf("%s", name);
+searchBook(&library, name);
+                break;
+            case 4:
+printf("Enter book name to borrow: ");
+scanf("%s", name);
+borrowBook(&library, name);
+                break;
+            case 5:
+displayDeadline(&library);
+                break;
+            case 6:
+printf("Enter category name: ");
+scanf("%s", categoryName);
+printf("Enter book name to delete: ");
+scanf("%s", name);
+                found = 0;
+                for (int i = 0; i<library.categoryCount; i++) {
+                    if (strcmp(library.categories[i].name, categoryName) == 0) {
+deleteBook(&library.categories[i], name);
+                        found = 1;
+                        break;
+                    }
+                }
+                if (!found) {
+printf("Category '%s' not found.\n", categoryName);
+                }
+                break;
+            case 7:
+displayBooks(&library);
+                break;
+            case 8:
+printf("Exiting the program.\n");
+exit(0);
+            default:
+printf("Invalid choice. Please try again.\n");
+getchar();
+                break;
+        }
+    }
+    while (1);
+    return 0;
+}
